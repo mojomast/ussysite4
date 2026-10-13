@@ -1088,6 +1088,39 @@ export class OrganumEngine {
     };
   }
 
+  // Public: live renderer/GPU stats for the graphics panel.
+  getRendererInfo() {
+    const r = this.renderer;
+    if (!r) return null;
+    const info = r.info;
+    let webglVersion = 'unknown';
+    let gpu = 'unknown';
+    let vendor = 'unknown';
+    try {
+      const gl = r.getContext();
+      webglVersion = gl.getParameter(gl.VERSION) || webglVersion;
+      const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+      if (dbg) {
+        vendor = gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) || vendor;
+        gpu = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || gpu;
+      } else {
+        vendor = gl.getParameter(gl.VENDOR) || vendor;
+        gpu = gl.getParameter(gl.RENDERER) || gpu;
+      }
+    } catch { /* context may be lost */ }
+    return {
+      threeRevision: THREE.REVISION,
+      webglVersion,
+      vendor,
+      gpu,
+      drawCalls: info?.render?.calls ?? 0,
+      triangles: info?.render?.triangles ?? 0,
+      geometries: info?.memory?.geometries ?? 0,
+      textures: info?.memory?.textures ?? 0,
+      programs: info?.programs?.length ?? 0
+    };
+  }
+
   setParticlesEnabled(enabled) {
     return this.setGraphics({ particles: !!enabled });
   }

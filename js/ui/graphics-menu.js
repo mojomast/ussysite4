@@ -36,7 +36,8 @@ export function initGraphicsMenu(app) {
     windrail: $('gfx-windrail'),
     ribbons: $('gfx-ribbons'),
     vault: $('gfx-vault'),
-    auto: $('gfx-auto')
+    auto: $('gfx-auto'),
+    renderer: $('graphics-renderer')
   };
 
   function refresh() {
@@ -59,6 +60,14 @@ export function initGraphicsMenu(app) {
     els.vault.checked = s.vault;
     els.auto.checked = s.autoQuality;
     els.fps.textContent = `${s.fps} FPS`;
+    const ri = e?.getRendererInfo?.();
+    if (ri && els.renderer) {
+      els.renderer.textContent =
+        `three r${ri.threeRevision} · ${ri.webglVersion}\n` +
+        `GPU: ${ri.gpu}\n` +
+        `draw calls: ${ri.drawCalls} · triangles: ${Number(ri.triangles).toLocaleString()}\n` +
+        `geometries: ${ri.geometries} · textures: ${ri.textures} · programs: ${ri.programs}`;
+    }
   }
 
   const apply = (partial) => { engine()?.setGraphics(partial); refresh(); };

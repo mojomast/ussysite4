@@ -1047,6 +1047,18 @@ html, body {
   cursor: pointer;
   flex: none;
 }
+.gfx-info {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 8px 10px;
+  white-space: pre-wrap;
+}
+
 .gfx-actions {
   display: flex;
   gap: 10px;
