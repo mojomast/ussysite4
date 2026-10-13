@@ -38,7 +38,7 @@ All 11 repositories from [`github.com/mojomast`](https://github.com/mojomast) ar
 | **I** | `orbitdesktop` | **OrbitDesktop** | Spatial Desktop Shell | `orrery-shell` — Triple gimbal brass/iridescent rings + 5 floating glass viewport panes |
 | **II** | `velvetrp` | **VelvetRP** | Narrative Roleplay Engine | `velvet-loom` — Crimson-violet theatrical proscenium arch + 5 braided narrative threads |
 | **III** | `jammate` | **JamMate** | Collaborative Jam Studio | `acoustic-resonator` — 12-pipe circular acoustic organ array + 3 expanding harmonic wave rings |
-| **IV** | `cocs` | **CoCS** | Clawd-on-Clawd-on-Clawd-Service | `claw-trinity` — 3 interlocking articulated mechanical claws around a pulsing orchestration orb ([cocs.ussyco.de](https://cocs.ussyco.de)) |
+| **IV** | `cocs` | **CoCS** | Clawd-on-Clawd-on-Clawd-Service | `claw-trinity` — 3 interlocking articulated mechanical claws around a pulsing orchestration orb ([arena.ussyco.de](https://arena.ussyco.de)) |
 | **V** | `cocs-godot` | **CoCS-Godot** | Godot 4 3D Agent Visualizer | `voxel-arena` — Translucent wireframe Godot arena cube + 8 orbiting voxel agent entities |
 | **VI** | `routetok` | **RouteTok** | LLM Token Router & Proxy | `prism-splitter` — Transmissive octahedral crystal prism splitting a white beam into 5 spectral rays |
 | **VII** | `rgbagentflightindicator` | **RGBAgentFlightIndicator** | Hardware RGB Telemetry Beacon | `rgb-totem` — Vertical smoked-glass cylinder housing 24 individually addressable WS2812B LED rings |

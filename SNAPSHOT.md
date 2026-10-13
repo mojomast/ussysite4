@@ -43,7 +43,7 @@ Each of the 11 requested `mojomast` repositories has a unique procedural 3D scul
   - `Windrail Dolly` (`2`) — Spline traversal along the helix (`[` / `]` or scroll)
   - `Lineage Loom` (`3`) — Concentric dependency graph layout with highlighted data ribbons
   - `Matrix Index` (`4`) — Searchable bento-grid overlay of all 11 repositories
-- **Stop Inspector Drawer**: 4 tabs (*Overview*, *Architecture & Specs*, *Dependency Lineage*, *Organum Telemetry*) with live streaming metrics, GitHub links, live deployment links (`https://cocs.ussyco.de`), and clickable upstream/downstream Stop jumps.
+- **Stop Inspector Drawer**: 4 tabs (*Overview*, *Architecture & Specs*, *Dependency Lineage*, *Organum Telemetry*) with live streaming metrics, GitHub links, live deployment links (`https://arena.ussyco.de`), and clickable upstream/downstream Stop jumps.
 - **Organum Console (`~`)**: Interactive command terminal wired to `AnomalySystem` and camera/audio controls.
 
 ### 2.4 Procedural WebAudio Synthesizer (`js/audio.js`)

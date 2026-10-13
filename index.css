@@ -362,7 +362,10 @@ html, body {
 .anomaly-toast[hidden],
 .inspector-drawer[hidden],
 .matrix-view-container[hidden],
-.modal-overlay[hidden] {
+.modal-overlay[hidden],
+.action-btn-primary[hidden],
+.action-btn-secondary[hidden],
+.action-btn-copy[hidden] {
   display: none !important;
 }
 

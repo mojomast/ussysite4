@@ -24,7 +24,7 @@ The site features the exact 11 repositories requested from `github.com/mojomast`
 1. **Stop `I` — `orbitdesktop`** (`orrery-shell`): Spatial 3D desktop environment & window compositor.
 2. **Stop `II` — `velvetrp`** (`velvet-loom`): AI-assisted collaborative roleplay & narrative state engine.
 3. **Stop `III` — `jammate`** (`acoustic-resonator`): Real-time low-latency collaborative music jamming platform.
-4. **Stop `IV` — `cocs`** (`claw-trinity`): Clawd-on-Clawd-on-Clawd-Service hierarchical multi-agent orchestrator (`https://cocs.ussyco.de`).
+4. **Stop `IV` — `cocs`** (`claw-trinity`): Clawd-on-Clawd-on-Clawd-Service hierarchical multi-agent orchestrator (`https://arena.ussyco.de`).
 5. **Stop `V` — `cocs-godot`** (`voxel-arena`): Godot 4 interactive 3D visualizer and simulation arena for CoCS agent swarms.
 6. **Stop `VI` — `routetok`** (`prism-splitter`): High-speed semantic LLM token router, cost optimizer, and fallback proxy.
 7. **Stop `VII` — `rgbagentflightindicator`** (`rgb-totem`): Hardware/software RGB status beacon & flight-deck telemetry indicator for AI agent swarms.

@@ -12,7 +12,7 @@ Read [`agent.md`](../agent.md) and [`docs/EASTER_EGG_GUIDE.md`](EASTER_EGG_GUIDE
   1. `orbitdesktop` (Stop `I` — `orrery-shell`)
   2. `velvetrp` (Stop `II` — `velvet-loom`)
   3. `jammate` (Stop `III` — `acoustic-resonator`)
-  4. `cocs` (Stop `IV` — `claw-trinity`, live at `https://cocs.ussyco.de`)
+  4. `cocs` (Stop `IV` — `claw-trinity`, live at `https://arena.ussyco.de`)
   5. `cocs-godot` (Stop `V` — `voxel-arena`)
   6. `routetok` (Stop `VI` — `prism-splitter`)
   7. `rgbagentflightindicator` (Stop `VII` — `rgb-totem`)

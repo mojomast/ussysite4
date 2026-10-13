@@ -165,7 +165,7 @@ export const USSY_PROJECTS = [
     },
     tags: ['Featured', 'Three.js', 'JavaScript', 'WebGL2', '60Hz Netcode', 'Arena Shooter', 'Procedural'],
     github: 'https://github.com/mojomast/cocs',
-    demo: 'https://cocs.ussyco.de',
+    demo: 'https://arena.ussyco.de',
     status: 'Active',
     connections: ['cocs-godot', 'mothbake', 'jammate'],
     specs: {
