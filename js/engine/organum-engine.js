@@ -146,14 +146,34 @@ export class OrganumEngine {
 
     this.qualityTier = this.prefersReducedMotion ? 'reduced' : 'medium';
 
-    // Particle toggle for performance A/B testing: append ?particles=off to the URL,
-    // or call __USSY_APP__.engine.setParticlesEnabled(false) from the console.
+    // --- Graphics feature model -------------------------------------------------
+    // Every visual/perf feature is individually controllable at runtime (see the
+    // in-app Graphics panel). `null` means "follow the current quality tier".
+    // The automatic quality downgrade is OFF by default so manual tuning is stable.
+    this.autoQualityEnabled = false;
+    this.graphics = {
+      pixelRatio: null,     // absolute pixel-ratio cap; null => tier default
+      particles: null,      // null => tier; true/false forces on/off
+      particleCount: null,  // null => tier count
+      bloom: null,
+      cinematic: null,
+      msaa: null,
+      ferrofluid: true,
+      windrail: true,
+      ribbons: true,
+      vault: true
+    };
     this.particlesEnabled = true;
+
+    // URL A/B hooks: ?particles=off, ?quality=low, ?auto=on
     if (typeof window !== 'undefined' && window.location) {
-      const particleParam = new URLSearchParams(window.location.search).get('particles');
-      if (particleParam && ['off', '0', 'false', 'no', 'none'].includes(particleParam.toLowerCase())) {
-        this.particlesEnabled = false;
-      }
+      const q = new URLSearchParams(window.location.search);
+      const p = (q.get('particles') || '').toLowerCase();
+      if (['off', '0', 'false', 'no', 'none'].includes(p)) this.graphics.particles = false;
+      const auto = (q.get('auto') || '').toLowerCase();
+      if (['on', '1', 'true', 'yes'].includes(auto)) this.autoQualityEnabled = true;
+      const qual = (q.get('quality') || '').toLowerCase();
+      if (QUALITY_TIERS[qual]) this.qualityTier = qual;
     }
 
     this.viewMode = 'overview'; // 'overview' | 'rail' | 'lineage'
@@ -207,6 +227,7 @@ export class OrganumEngine {
 
     if (this.container) {
       this._init();
+      this._applyGraphics();
     }
   }
 
@@ -711,8 +732,6 @@ export class OrganumEngine {
     this.pneumaPoints.frustumCulled = false;
     this.pneumaPoints.name = 'pneuma-curl-particles';
     this.scene.add(this.pneumaPoints);
-
-    this.setParticlesEnabled(this.particlesEnabled);
   }
 
   _buildPostProcessing(width, height) {
@@ -994,40 +1013,88 @@ export class OrganumEngine {
     this.targetSplineT = Math.max(0, Math.min(1, this.targetSplineT + deltaT));
   }
 
-  setParticlesEnabled(enabled) {
-    this.particlesEnabled = !!enabled;
-    if (this.pneumaPoints) {
-      this.pneumaPoints.visible = this.particlesEnabled;
-      this.pneumaPoints.geometry.setDrawRange(
-        0,
-        this.particlesEnabled ? QUALITY_TIERS[this.qualityTier].particles : 0
-      );
-    }
-    return this.particlesEnabled;
-  }
-
-  setQuality(tierName) {
-    const cfg = QUALITY_TIERS[tierName];
-    if (!cfg) return this.qualityTier;
-    this.qualityTier = cfg.id;
-
-    const dpr = Math.min(window.devicePixelRatio || 1, cfg.dprCap);
+  // Resolve effective graphics state from tier defaults + explicit overrides.
+  _applyGraphics() {
+    const tierCfg = QUALITY_TIERS[this.qualityTier];
+    const g = this.graphics;
     const w = this.container?.clientWidth || window.innerWidth || 1280;
     const h = this.container?.clientHeight || window.innerHeight || 720;
+
+    const dprCap = g.pixelRatio ?? tierCfg.dprCap;
+    const dpr = Math.min(window.devicePixelRatio || 1, dprCap);
     this.renderer.setPixelRatio(dpr);
     this.renderer.setSize(w, h);
     this.composer?.setSize(w, h);
+
+    const particleCount = g.particles === false ? 0 : (g.particleCount ?? tierCfg.particles);
+    this.particlesEnabled = particleCount > 0;
     if (this.pneumaPoints) {
-      this.pneumaPoints.geometry.setDrawRange(0, this.particlesEnabled ? cfg.particles : 0);
-      this.pneumaMaterial.uniforms.uPixelRatio.value = dpr;
+      this.pneumaPoints.visible = this.particlesEnabled;
+      this.pneumaPoints.geometry.setDrawRange(0, particleCount);
     }
-    if (this.bloomPass) this.bloomPass.enabled = cfg.bloom;
-    if (this.cinematicPass) this.cinematicPass.enabled = cfg.cinematicPass;
+    if (this.pneumaMaterial) this.pneumaMaterial.uniforms.uPixelRatio.value = dpr;
+
+    if (this.bloomPass) this.bloomPass.enabled = g.bloom ?? tierCfg.bloom;
+    if (this.cinematicPass) this.cinematicPass.enabled = g.cinematic ?? tierCfg.cinematicPass;
+
+    const samples = g.msaa ?? tierCfg.msaa;
     if (this.composer) {
-      if (this.composer.renderTarget1) this.composer.renderTarget1.samples = cfg.msaa;
-      if (this.composer.renderTarget2) this.composer.renderTarget2.samples = cfg.msaa;
+      if (this.composer.renderTarget1) this.composer.renderTarget1.samples = samples;
+      if (this.composer.renderTarget2) this.composer.renderTarget2.samples = samples;
     }
-    return this.qualityTier;
+
+    if (this.ferrofluidFloor) this.ferrofluidFloor.visible = g.ferrofluid !== false;
+    if (this.railsGroup) this.railsGroup.visible = g.windrail !== false;
+    if (this.ribbonsGroup) this.ribbonsGroup.visible = g.ribbons !== false;
+    if (this.architectureGroup) this.architectureGroup.visible = g.vault !== false;
+
+    return this.getGraphicsSettings();
+  }
+
+  // Public: merge a partial graphics override and re-apply. `quality` selects the
+  // baseline tier; any other key overrides that feature independently of the tier.
+  setGraphics(partial = {}) {
+    if (partial.quality !== undefined) {
+      if (QUALITY_TIERS[partial.quality]) this.qualityTier = partial.quality;
+      delete partial.quality;
+    }
+    for (const key of Object.keys(partial)) {
+      if (Object.prototype.hasOwnProperty.call(this.graphics, key)) {
+        this.graphics[key] = partial[key];
+      }
+    }
+    return this._applyGraphics();
+  }
+
+  // Public: effective, serializable graphics state (used by the panel copy button).
+  getGraphicsSettings() {
+    const tierCfg = QUALITY_TIERS[this.qualityTier];
+    const g = this.graphics;
+    const resolvedParticles = g.particles === false ? 0 : (g.particleCount ?? tierCfg.particles);
+    return {
+      quality: this.qualityTier,
+      pixelRatio: Math.round((this.renderer?.getPixelRatio?.() ?? 1) * 100) / 100,
+      particles: resolvedParticles > 0,
+      particleCount: resolvedParticles,
+      bloom: this.bloomPass ? this.bloomPass.enabled : tierCfg.bloom,
+      cinematic: this.cinematicPass ? this.cinematicPass.enabled : tierCfg.cinematicPass,
+      msaa: this.composer?.renderTarget1?.samples ?? tierCfg.msaa,
+      ferrofluid: g.ferrofluid !== false,
+      windrail: g.windrail !== false,
+      ribbons: g.ribbons !== false,
+      vault: g.vault !== false,
+      autoQuality: this.autoQualityEnabled,
+      fps: this._currentFps
+    };
+  }
+
+  setParticlesEnabled(enabled) {
+    return this.setGraphics({ particles: !!enabled });
+  }
+
+  setQuality(tierName) {
+    if (!QUALITY_TIERS[tierName]) return this.qualityTier;
+    return this.setGraphics({ quality: tierName }).quality;
   }
 
   _updateCamera(dt) {
@@ -1187,7 +1254,7 @@ export class OrganumEngine {
       // Automatic quality adaptation (downgrade-only to avoid oscillation):
       // if we sustain under 45 fps for two consecutive one-second windows, step
       // down high -> medium -> low. Users can still override via f.setQuality().
-      if (this.qualityTier !== 'reduced') {
+      if (this.autoQualityEnabled && this.qualityTier !== 'reduced') {
         this._slowWindows = this._currentFps < 45 ? this._slowWindows + 1 : 0;
         if (this._slowWindows >= 2) {
           this._slowWindows = 0;
@@ -1204,7 +1271,9 @@ export class OrganumEngine {
         mode: this.viewMode,
         quality: this.qualityTier,
         splineT: this.splineT,
-        particles: QUALITY_TIERS[this.qualityTier].particles
+        particles: this.graphics.particles === false
+          ? 0
+          : (this.graphics.particleCount ?? QUALITY_TIERS[this.qualityTier].particles)
       });
     }
   }

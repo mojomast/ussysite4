@@ -13,7 +13,7 @@
     "test:anomaly": "node --import ./scripts/register-three.mjs --test test/anomaly-system.test.mjs",
     "test:server": "node --import ./scripts/register-three.mjs --test test/server-security.test.mjs",
     "test:shaders": "node --import ./scripts/register-three.mjs --test test/shaders-and-math.test.mjs",
-    "check:syntax": "node --check server.mjs projects.js js/projects.js js/app.js js/audio.js js/anomaly/anomaly-system.js js/engine/organum-engine.js js/stations/station-builder.js js/shaders/organum-shaders.js",
+    "check:syntax": "node --check server.mjs projects.js js/projects.js js/app.js js/audio.js js/anomaly/anomaly-system.js js/engine/organum-engine.js js/stations/station-builder.js js/shaders/organum-shaders.js js/ui/graphics-menu.js",
     "check:mirrors": "node scripts/check-mirrors.mjs"
   },
   "engines": {

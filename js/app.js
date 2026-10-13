@@ -13,6 +13,7 @@ import { USSY_PROJECTS, USSY_CATEGORIES } from './projects.js';
 import { OrganumAudioDirector } from './audio.js';
 import { AnomalySystem, isTypingTarget } from './anomaly/anomaly-system.js';
 import { OrganumEngine } from './engine/organum-engine.js';
+import { initGraphicsMenu } from './ui/graphics-menu.js';
 
 export class OrganumApp {
   constructor() {
@@ -37,6 +38,7 @@ export class OrganumApp {
     this._renderStopRibbon();
     this._renderMatrixTable('');
     this._bindUIEvents();
+    this.graphicsMenu = initGraphicsMenu(this);
     this._bindAnomalyEvents();
     this._syncAudioUI();
     this._updateAnomalyStatusBar();
@@ -65,6 +67,8 @@ export class OrganumApp {
       setQuality: (tier) => this.engine?.setQuality(tier),
       getParticles: () => this.engine?.particlesEnabled ?? true,
       setParticles: (on) => this.engine?.setParticlesEnabled(on),
+      getGraphics: () => this.engine?.getGraphicsSettings(),
+      setGraphics: (opts) => this.engine?.setGraphics(opts),
       commandHooks: {
         onGo: (id) => this.inspectProject(id),
         onMode: (m) => this.setViewMode(m),
