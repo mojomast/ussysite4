@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Helix Organum // USSYSITE4 — Mojomast Kinetic Architecture Conservatory</title>
+
+  <meta name="description" content="Explore The Helix Organum (USSYSITE4): a subterranean Three.js (r186) kinetic pipe-organ conservatory of 11 software repositories by Kyle Durepos (mojomast).">
+  <meta name="author" content="Kyle Durepos (mojomast)">
+  <meta property="og:title" content="The Helix Organum // USSYSITE4">
+  <meta property="og:description" content="Subterranean Three.js conservatory of 11 kinetic software sculptures, 60k GPU curl-noise pneuma particles, SDF ferrofluid basin, and AnomalySystem foundation.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#070a10">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070a10'/%3E%3Cpolygon points='32,8 54,32 32,56 10,32' fill='none' stroke='%23d4af37' stroke-width='3.5'/%3E%3Ccircle cx='32' cy='32' r='8' fill='%233ee0d0'/%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+
+  <link rel="stylesheet" href="index.css">
+
+  <!-- Three.js r186 (0.186.1) Native ES Module Import Map -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./js/vendor/three/build/three.module.js",
+      "three/addons/": "./js/vendor/three/addons/"
+    }
+  }
+  </script>
+</head>
+<body>
+
+  <!-- ==================== 3D HELIX ORGANUM VIEWPORT ==================== -->
+  <main id="canvas-container" aria-label="Interactive 3D Helix Organum Viewport"></main>
+
+  <!-- ==================== FLOATING HOVER & RUNE BANNER ==================== -->
+  <div id="hover-stop-banner" class="hover-stop-banner" hidden aria-live="polite"></div>
+
+  <!-- ==================== ANOMALY FOUNDATION TOAST ==================== -->
+  <div id="anomaly-toast" class="anomaly-toast" hidden role="status" aria-live="assertive"></div>
+
+  <!-- ==================== TOP NAVIGATION & STOP RIBBON ==================== -->
+  <header class="top-navbar" role="banner">
+    <div class="nav-primary-row">
+      <div class="nav-brand">
+        <div class="brand-glyph" title="USSYSITE4 // The Helix Organum">IV</div>
+        <div class="brand-titles">
+          <h1 class="brand-text">THE HELIX ORGANUM</h1>
+          <span class="brand-subtitle">MOJOMAST // KINETIC CONSERVATORY</span>
+        </div>
+        <span class="brand-badge" id="telemetry-nodes">11 STOPS</span>
+      </div>
+
+      <div class="nav-actions">
+        <button class="nav-icon-btn" id="cmd-palette-btn" type="button" aria-label="Search stops">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <span>Search</span>
+          <span class="kbd-shortcut">/</span>
+        </button>
+
+        <div class="audio-controls" role="group" aria-label="Organum Harmonic Synthesizer">
+          <button class="nav-icon-btn" id="audio-toggle-btn" type="button" aria-label="Toggle Organum audio" aria-pressed="false">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+            <span>ORGANUM: ON</span>
+          </button>
+          <label class="audio-volume" for="audio-volume">
+            <span class="audio-volume-label">VOL</span>
+            <input id="audio-volume" type="range" min="0" max="100" step="1" value="80" aria-describedby="audio-volume-value">
+            <output id="audio-volume-value" for="audio-volume">80</output>
+          </label>
+        </div>
+
+        <button class="nav-icon-btn console-trigger-btn" id="console-open-btn" type="button" aria-label="Open Organum Anomaly Console">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+          <span>ANOMALY SDK</span>
+          <span class="kbd-shortcut">~</span>
+        </button>
+
+        <button class="nav-icon-btn" id="about-open-btn" type="button" aria-label="About The Helix Organum">
+          <span>Architecture</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Second Row: Sector Filters & View Switcher -->
+    <div class="nav-secondary-row">
+      <nav class="nav-sectors" aria-label="Organum Sector Filters">
+        <button class="sector-chip active" data-category="all" type="button" aria-pressed="true">
+          <span class="sector-dot all"></span> All 11 Stops
+        </button>
+        <button class="sector-chip" data-category="workspace" type="button" aria-pressed="false">
+          <span class="sector-dot workspace"></span> Workspaces &amp; Terminals
+        </button>
+        <button class="sector-chip" data-category="ai" type="button" aria-pressed="false">
+          <span class="sector-dot ai"></span> AI &amp; Continuity
+        </button>
+        <button class="sector-chip" data-category="creative" type="button" aria-pressed="false">
+          <span class="sector-dot creative"></span> DSP &amp; Arena Engines
+        </button>
+        <button class="sector-chip" data-category="infra" type="button" aria-pressed="false">
+          <span class="sector-dot infra"></span> Infra, Bake &amp; Telemetry
+        </button>
+      </nav>
+
+      <div class="view-switcher" role="group" aria-label="Camera Choreography Mode Switcher">
+        <button class="view-mode-btn active" data-view="overview" type="button" aria-pressed="true">CHOIR OVERVIEW</button>
+        <button class="view-mode-btn" data-view="rail" type="button" aria-pressed="false">WINDRAIL DOLLY</button>
+        <button class="view-mode-btn" data-view="lineage" type="button" aria-pressed="false">LINEAGE LOOM</button>
+        <button class="view-mode-btn" data-view="matrix" type="button" aria-pressed="false">MATRIX INDEX</button>
+      </div>
+    </div>
+
+    <!-- Third Row: Direct Roman Stop Quick-Jump Ribbon (I - XI) -->
+    <nav id="stop-ribbon" class="stop-ribbon" aria-label="Organum Stops I through XI"></nav>
+  </header>
+
+  <!-- ==================== HUD FOOTER TELEMETRY ==================== -->
+  <footer class="hud-footer" role="contentinfo">
+    <div class="hud-telemetry-left">
+      <span><span class="hud-signal-dot"></span>WINDCHEST: BREATHING</span>
+      <span id="telemetry-fps">FPS: 60</span>
+      <span id="telemetry-particles">PNEUMA: 60K GPU CURL</span>
+      <span id="telemetry-mode">MODE: OVERVIEW</span>
+      <span id="telemetry-resonance">PITCH: 440 HZ</span>
+      <span id="telemetry-anomaly">ANOMALY: 0.00 // UNLOCKED: 0/12</span>
+      <span class="hud-hint">DRAG GALLERY · SCROLL / W-S WINDRAIL · KEYS 1-9,0,- JUMP STOPS · ~ CONSOLE</span>
+    </div>
+    <div class="hud-telemetry-right">
+      <a href="https://github.com/mojomast" target="_blank" rel="noopener noreferrer">GITHUB // MOJOMAST</a>
+      <span>ARCHITECT // KYLE DUREPOS</span>
+    </div>
+  </footer>
+
+  <!-- ==================== STOP BLUEPRINT INSPECTOR DRAWER ==================== -->
+  <aside id="inspector-drawer" class="inspector-drawer" hidden aria-label="Organum Stop Blueprint Inspector">
+    <div class="inspector-header">
+      <div class="inspector-title-area">
+        <div class="inspector-badges">
+          <span class="stop-roman-badge" id="inspect-stop-badge">STOP I</span>
+          <span class="inspect-category" id="inspect-category">Agent Workspaces</span>
+          <span class="chord-pill" id="inspect-chord">Cmaj9 · 261.6 Hz</span>
+          <span class="status-pill active" id="inspect-status">ACTIVE</span>
+        </div>
+        <h2 class="inspector-title" id="inspect-title">OrbitDesktop</h2>
+        <p class="inspector-subtitle" id="inspect-subtitle"></p>
+      </div>
+      <button class="inspector-close-btn" id="inspector-close-btn" type="button" aria-label="Close inspector">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+
+    <div class="inspector-scroll-body">
+      <div>
+        <p class="inspector-desc" id="inspect-desc"></p>
+      </div>
+
+      <div>
+        <div class="inspector-section-label">ARCHITECTURAL SPECIFICATIONS</div>
+        <div class="spec-grid" id="inspect-specs"></div>
+      </div>
+
+      <div>
+        <div class="inspector-section-label">VERIFIED CAPABILITIES</div>
+        <ul class="features-list" id="inspect-features"></ul>
+      </div>
+
+      <div>
+        <div class="inspector-section-label">PNEUMATIC LINEAGE RIBBONS (CONNECTED STOPS)</div>
+        <div class="connections-row" id="inspect-connections"></div>
+      </div>
+
+      <div>
+        <div class="inspector-section-label">LIVE STREAMING ORGANUM TELEMETRY</div>
+        <div class="telemetry-terminal" id="inspect-telemetry" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <div class="inspector-footer">
+      <a href="#" target="_blank" rel="noopener noreferrer" class="action-btn-primary" id="inspect-btn-github">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+        <span>View GitHub Repo</span>
+      </a>
+      <a href="#" target="_blank" rel="noopener noreferrer" class="action-btn-secondary" id="inspect-btn-demo" hidden>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+        <span>Live Arena</span>
+      </a>
+      <button class="action-btn-copy" id="inspect-btn-copy" type="button" title="Copy git clone command">
+        <span>CLONE</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ==================== MATRIX INDEX OVERLAY ==================== -->
+  <div id="matrix-view-container" class="matrix-view-container" hidden aria-label="Organum Matrix Catalog">
+    <div class="matrix-header-bar">
+      <div>
+        <h2 class="matrix-heading">THE HELIX ORGANUM // STOP MATRIX INDEX</h2>
+        <p class="matrix-subheading">Complete architectural ledger of the 11 Mojomast kinetic repositories, harmonic voicings, and stacks</p>
+      </div>
+      <div class="matrix-search-box">
+        <svg class="matrix-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="matrix-search-input" class="matrix-search-input" placeholder="Filter by repository, sculpture, stack, or chord..." aria-label="Filter matrix">
+      </div>
+    </div>
+
+    <table class="matrix-table">
+      <thead>
+        <tr>
+          <th>STOP &amp; REPOSITORY</th>
+          <th>SECTOR</th>
+          <th>ARCHITECTURAL SUMMARY</th>
+          <th>STACK &amp; PRIMITIVES</th>
+          <th>CHORD</th>
+          <th>ACTION</th>
+        </tr>
+      </thead>
+      <tbody id="matrix-table-body"></tbody>
+    </table>
+  </div>
+
+  <!-- ==================== COMMAND PALETTE MODAL ==================== -->
+  <div id="command-palette-modal" class="modal-overlay" hidden role="dialog" aria-modal="true" aria-label="Command Palette">
+    <div class="command-palette-card">
+      <div class="palette-input-wrapper">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="command-palette-input" class="palette-input" placeholder="Jump to any of the 11 Stops or type an Organum command..." autocomplete="off" spellcheck="false">
+      </div>
+      <div class="palette-results" id="command-palette-results"></div>
+      <div class="palette-footer">
+        <span>SELECT: <kbd>↑</kbd> <kbd>↓</kbd> <kbd>ENTER</kbd></span>
+        <span>CONSOLE: <kbd>~</kbd></span>
+        <span>CLOSE: <kbd>ESC</kbd></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ORGANUM ANOMALY & EASTER-EGG FOUNDATION CONSOLE ==================== -->
+  <div id="console-modal" class="modal-overlay" hidden role="dialog" aria-modal="true" aria-label="Organum Anomaly Foundation Console">
+    <div class="console-card">
+      <div class="about-header">
+        <div>
+          <h2>ORGANUM CONSOLE // ANOMALY &amp; EASTER-EGG FOUNDATION</h2>
+          <p class="console-subtitle">Live uniform bus, sequence detectors, 3D rune anchors, and <code>window.__USSY4_SDK__</code> bridge ready for future payload expansion</p>
+        </div>
+        <button class="inspector-close-btn" id="console-close-btn" type="button" aria-label="Close Organum console">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <div class="console-body">
+        <div class="console-presets-row">
+          <button type="button" class="preset-btn" data-console-cmd="status">Inspect Status</button>
+          <button type="button" class="preset-btn" data-console-cmd="tune 432">Tune 432 Hz (Verdi)</button>
+          <button type="button" class="preset-btn" data-console-cmd="anomaly 0.85">Wake Organum (0.85)</button>
+          <button type="button" class="preset-btn" data-console-cmd="crypt open">Open Sub-Floor Crypt</button>
+          <button type="button" class="preset-btn" data-console-cmd="glitch 0.65">Pulse Glitch (0.65)</button>
+          <button type="button" class="preset-btn" data-console-cmd="reset">Reset Baseline</button>
+        </div>
+
+        <div id="console-output" class="console-output" aria-live="polite">
+          <div class="console-line response">[ORGANUM_SDK] AnomalySystem v1 armed. Type `help` or click a detector below to test foundation hooks.</div>
+        </div>
+
+        <form id="console-form" class="console-form">
+          <span class="console-prompt-label">organum&gt;</span>
+          <input type="text" id="console-input" class="console-input" placeholder="Type command (e.g. help, status, tune 432, anomaly 0.8, crypt open, go cocs)..." autocomplete="off" spellcheck="false">
+          <button type="submit" class="action-btn-primary console-submit-btn">Execute</button>
+        </form>
+
+        <div class="inspector-section-label" style="margin-top: 14px;">ARMED FOUNDATION DETECTORS (CLICK ANY CARD TO TEST TRIGGER)</div>
+        <div id="detector-grid" class="detector-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ARCHITECTURE & MANIFESTO MODAL ==================== -->
+  <div id="about-modal" class="modal-overlay" hidden role="dialog" aria-modal="true" aria-label="About The Helix Organum">
+    <div class="about-card">
+      <div class="about-header">
+        <h2>THE HELIX ORGANUM // USSYSITE4 ARCHITECTURE</h2>
+        <button class="inspector-close-btn" id="about-close-btn" type="button" aria-label="Close architecture modal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <div class="about-scroll-body">
+        <p>
+          <strong>The Helix Organum (USSYSITE4)</strong> replaces the solar-system metaphor of <em>ussysite3</em> with a subterranean, cathedral-scale living pipe organ of transmissive salt-glass, brushed brass, reactive ferrofluid, and breath. Eleven repositories by <strong>Kyle Durepos (mojomast)</strong> stand along a triple-helix windrail as bespoke kinetic sculptures ("Stops" I through XI).
+        </p>
+
+        <div class="about-stats-grid">
+          <div class="about-stat-card">
+            <div class="stat-number" style="color: var(--color-workspace);">11</div>
+            <div class="stat-title">KINETIC ORGAN STOPS</div>
+          </div>
+          <div class="about-stat-card">
+            <div class="stat-number" style="color: var(--color-ai);">60K</div>
+            <div class="stat-title">GPU CURL PNEUMA</div>
+          </div>
+          <div class="about-stat-card">
+            <div class="stat-number" style="color: var(--color-creative);">r186</div>
+            <div class="stat-title">THREE.JS ENGINE</div>
+          </div>
+          <div class="about-stat-card">
+            <div class="stat-number" style="color: var(--color-infra);">12</div>
+            <div class="stat-title">ANOMALY HOOKS</div>
+          </div>
+        </div>
+
+        <h3>1. Subterranean Glass, Ferrofluid &amp; Pneuma</h3>
+        <p>
+          Overhead, an inverted salt-glass vault refracts dual-frequency caustics and volumetric god-rays into the nave. Below, a real-time SDF smooth-min (<code>smin</code>) ferrofluid basin rises into magnetic Rosensweig peaks beneath each hovered sculpture while 60,000 GPU curl-noise particles inhale toward the active Stop.
+        </p>
+
+        <h3>2. The Eleven Featured Repositories</h3>
+        <p>
+          <strong>Workspaces &amp; Terminals:</strong> <em>OrbitDesktop</em>, <em>Warpi</em>, <em>HermesDashboard</em>.<br>
+          <strong>AI &amp; Continuity:</strong> <em>VelvetRP</em>, <em>Becomussy</em>.<br>
+          <strong>Audio DSP &amp; Arena Engines:</strong> <em>JamMate</em>, <em>COCS</em>, <em>COCS-Godot</em>.<br>
+          <strong>Routing, Bake &amp; Telemetry:</strong> <em>RouteTok</em>, <em>RGBAgentFlightIndicator</em>, <em>MothBake</em>.
+        </p>
+
+        <h3>3. Built-In Easter Egg Foundation (<code>window.__USSY4_SDK__</code>)</h3>
+        <p>
+          The sub-floor Crypt Reliquary, 4 raycastable 3D Rune Anchors, key-chord &amp; Stop-triad sequence detectors, and shared shader uniforms (<code>uAnomalyFactor</code>, <code>uGlitchIntensity</code>, <code>uWorldPhase</code>, <code>uCryptReveal</code>) are wired across all shaders, particles, post-processing passes, and the procedural WebAudio synth — ready for another agent to attach a full easter-egg payload with zero refactoring.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Application Entry -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

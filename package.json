@@ -1,0 +1,23 @@
+{
+  "name": "ussysite4",
+  "version": "4.0.0",
+  "description": "The Helix Organum — State-of-the-art Three.js (r186) 3D kinetic software portfolio and AnomalySystem foundation for mojomast",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs",
+    "test": "node --import ./scripts/register-three.mjs --test test/*.test.mjs",
+    "test:all": "node --import ./scripts/register-three.mjs --test test/*.test.mjs",
+    "test:catalog": "node --import ./scripts/register-three.mjs --test test/catalog.test.mjs",
+    "test:anomaly": "node --import ./scripts/register-three.mjs --test test/anomaly-system.test.mjs",
+    "test:server": "node --import ./scripts/register-three.mjs --test test/server-security.test.mjs",
+    "test:shaders": "node --import ./scripts/register-three.mjs --test test/shaders-and-math.test.mjs",
+    "check:syntax": "node --check server.mjs projects.js js/projects.js js/app.js js/audio.js js/anomaly/anomaly-system.js js/engine/organum-engine.js js/stations/station-builder.js js/shaders/organum-shaders.js",
+    "check:mirrors": "node scripts/check-mirrors.mjs"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "author": "Kyle Durepos (mojomast)",
+  "license": "MIT"
+}
