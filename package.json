@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server.mjs",
     "dev": "node server.mjs",
+    "setup:vendor": "node scripts/setup-vendor.mjs",
     "test": "node --import ./scripts/register-three.mjs --test test/*.test.mjs",
     "test:all": "node --import ./scripts/register-three.mjs --test test/*.test.mjs",
     "test:catalog": "node --import ./scripts/register-three.mjs --test test/catalog.test.mjs",

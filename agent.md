@@ -91,9 +91,13 @@ The site features the exact 11 repositories requested from `github.com/mojomast`
 
 ## 5. Verification Checklist Before Committing
 
+> **Note on `js/vendor/` (`.gitignore`):**
+> `js/vendor/` is listed in `.gitignore` so the >2 MB Three.js `r186` bundle files didn't block GitHub MCP API pushes. On a fresh clone, run `npm run setup:vendor` (which runs `scripts/setup-vendor.mjs` to install `three@0.186.1` and copy the ESM build + postprocessing addons into `js/vendor/three/`), or un-ignore `js/vendor/` when pushing over standard git CLI.
+
 Always run these three commands and verify zero errors before committing:
 
 ```bash
+npm run setup:vendor
 npm run check:syntax
 npm run check:mirrors
 npm test

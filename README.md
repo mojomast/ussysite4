@@ -111,17 +111,23 @@ Per the project specification, `ussysite4` does **not** hardcode a finished east
 
 ## 6. Quickstart & Development Commands
 
+> **Note for Next Agent / Fresh Clone (`js/vendor/` in `.gitignore`):**
+> Because the vendored Three.js `r186` build (`js/vendor/three/build/three.core.js` + `three.module.js`, ~2.1 MB) is excluded via `.gitignore` to keep git/MCP pushes fast, run `npm run setup:vendor` once after cloning to populate `js/vendor/three/` from `three@0.186.1` (or bundle/vendor it in your preferred workflow).
+
 ```bash
-# Start the local server (defaults to http://127.0.0.1:3000)
+# 1. Populate js/vendor/three (Three.js r186 / 0.186.1) on a fresh clone
+npm run setup:vendor
+
+# 2. Start the local server (defaults to http://127.0.0.1:3000)
 npm start
 
-# Run syntax verification across all server and client ESM modules
+# 3. Run syntax verification across all server and client ESM modules
 npm run check:syntax
 
-# Verify byte-for-byte parity between /projects.js and /js/projects.js
+# 4. Verify byte-for-byte parity between /projects.js and /js/projects.js
 npm run check:mirrors
 
-# Run the full Node.js automated test suite (catalog, anomaly system, server security, shaders & 3D math)
+# 5. Run the full Node.js automated test suite (catalog, anomaly system, server security, shaders & 3D math)
 npm test
 ```
 

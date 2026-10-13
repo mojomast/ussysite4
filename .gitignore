@@ -1,4 +1,5 @@
 node_modules/
+js/vendor/
 .env
 .env.*
 !.env.example
