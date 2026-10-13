@@ -13,6 +13,8 @@ import {
   computeLineageStopAnchor,
   QUALITY_TIERS
 } from '../js/engine/organum-engine.js';
+import { createProjectStation, updateStationSculpture } from '../js/stations/station-builder.js';
+import { AnomalySystem } from '../js/anomaly/anomaly-system.js';
 import { USSY_PROJECTS } from '../js/projects.js';
 
 test('Shaders include shared anomaly uniforms and curl-noise / SDF ferrofluid functions', () => {
@@ -50,4 +52,16 @@ test('Helix and Lineage 3D anchor math spaces all 11 Stops cleanly without NaNs 
   // Verify ascending Y along the helix
   assert.ok(helixAnchors[10].y > helixAnchors[0].y);
   assert.equal(QUALITY_TIERS.high.particles, 60000);
+});
+
+test('All 11 bespoke Stop 3D sculptures construct and animate without runtime errors', () => {
+  const anomaly = new AnomalySystem({ autoBind: false });
+  for (let i = 0; i < USSY_PROJECTS.length; i++) {
+    const proj = USSY_PROJECTS[i];
+    const anchor = computeHelixStopAnchor(i, USSY_PROJECTS.length);
+    const station = createProjectStation(proj, i, USSY_PROJECTS.length, anchor, i / 10, 'high');
+    assert.equal(station.id, proj.id);
+    assert.ok(station.sculptureRoot.children.length > 0, `Stop ${proj.id} should build 3D geometry`);
+    updateStationSculpture(station, 2.4, 0.016, anomaly.uniforms, true, true, false);
+  }
 });

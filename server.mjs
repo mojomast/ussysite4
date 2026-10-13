@@ -361,6 +361,7 @@ export function createAppServer() {
 
       res.writeHead(200, {
         ...headers,
+        'Cache-Control': 'no-cache',
         'Content-Type': contentType,
         'Content-Length': fileBuffer.length
       });

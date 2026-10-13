@@ -248,12 +248,12 @@ function buildArchetypeGeometry(project, root, mats, kinetic) {
       stageRing.position.y = 0.85;
       for (let i = 0; i < 11; i++) {
         const a = (i / 11) * Math.PI * 2;
-        constpip = new THREE.Mesh(
+        const pip = new THREE.Mesh(
           new THREE.OctahedronGeometry(0.18, 0),
           i % 2 === 0 ? mats.emissivePrimary : mats.brass
         );
-        constpip.position.set(Math.cos(a) * 2.1, Math.sin(a * 2) * 0.25, Math.sin(a) * 2.1);
-        stageRing.add(constpip);
+        pip.position.set(Math.cos(a) * 2.1, Math.sin(a * 2) * 0.25, Math.sin(a) * 2.1);
+        stageRing.add(pip);
       }
       root.add(stageRing);
       kinetic.spinY.push({ mesh: stageRing, speed: -0.55 });
