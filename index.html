@@ -28,6 +28,12 @@
     }
   }
   </script>
+
+  <!-- Critical-path module preloads: begin fetching the heavy Three.js graph in
+       parallel with HTML parsing instead of waiting for app.js to be discovered. -->
+  <link rel="modulepreload" href="js/vendor/three/build/three.core.js">
+  <link rel="modulepreload" href="js/vendor/three/build/three.module.js">
+  <link rel="modulepreload" href="js/app.js">
 </head>
 <body>
 

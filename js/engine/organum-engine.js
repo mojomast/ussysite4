@@ -48,28 +48,36 @@ export const QUALITY_TIERS = {
     dprCap: 1.5,
     particles: 60000,
     bloom: true,
-    cinematicPass: true
+    cinematicPass: true,
+    msaa: 4,
+    bloomScale: 0.5
   },
   medium: {
     id: 'medium',
     dprCap: 1.25,
     particles: 32000,
     bloom: true,
-    cinematicPass: true
+    cinematicPass: true,
+    msaa: 2,
+    bloomScale: 0.5
   },
   low: {
     id: 'low',
     dprCap: 1.0,
     particles: 14000,
     bloom: false,
-    cinematicPass: false
+    cinematicPass: false,
+    msaa: 2,
+    bloomScale: 0.5
   },
   reduced: {
     id: 'reduced',
     dprCap: 1.0,
     particles: 6000,
     bloom: false,
-    cinematicPass: false
+    cinematicPass: false,
+    msaa: 0,
+    bloomScale: 0.5
   }
 };
 
@@ -136,7 +144,7 @@ export class OrganumEngine {
       window.matchMedia &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    this.qualityTier = this.prefersReducedMotion ? 'reduced' : 'high';
+    this.qualityTier = this.prefersReducedMotion ? 'reduced' : 'medium';
     this.viewMode = 'overview'; // 'overview' | 'rail' | 'lineage'
     this.activeFilter = 'all';
 
@@ -204,7 +212,9 @@ export class OrganumEngine {
     this.camera.lookAt(0, 3, 0);
 
     this.renderer = new THREE.WebGLRenderer({
-      antialias: true,
+      // MSAA is handled by the post-processing render target (see _buildPostProcessing);
+      // canvas-level MSAA is wasted when every frame ends in a fullscreen OutputPass.
+      antialias: false,
       powerPreference: 'high-performance'
     });
     const tierCfg = QUALITY_TIERS[this.qualityTier];
@@ -693,18 +703,38 @@ export class OrganumEngine {
   }
 
   _buildPostProcessing(width, height) {
-    this.composer = new EffectComposer(this.renderer);
+    const tierCfg = QUALITY_TIERS[this.qualityTier];
+    const drawingSize = this.renderer.getDrawingBufferSize(new THREE.Vector2());
+    // HDR (HalfFloat) render target with tier-appropriate MSAA so the 3D scene
+    // (thin iridescent rails, glass, sculpture edges) is antialiased where it matters.
+    const renderTarget = new THREE.WebGLRenderTarget(
+      Math.max(1, Math.floor(drawingSize.x)),
+      Math.max(1, Math.floor(drawingSize.y)),
+      {
+        type: THREE.HalfFloatType,
+        samples: tierCfg.msaa
+      }
+    );
+    this.composer = new EffectComposer(this.renderer, renderTarget);
 
     this.renderPass = new RenderPass(this.scene, this.camera);
     this.composer.addPass(this.renderPass);
 
+    // Bloom runs at a fraction of the drawing-buffer resolution (it is a blur, so
+    // the visual difference is negligible while the fill cost drops ~4x at 0.5).
+    const bloomScale = tierCfg.bloomScale ?? 0.5;
     this.bloomPass = new UnrealBloomPass(
-      new THREE.Vector2(width, height),
+      new THREE.Vector2(drawingSize.x * bloomScale, drawingSize.y * bloomScale),
       0.52, // strength
       0.42, // radius
       0.68  // threshold
     );
-    this.bloomPass.enabled = QUALITY_TIERS[this.qualityTier].bloom;
+    const baseBloomSetSize = this.bloomPass.setSize.bind(this.bloomPass);
+    this.bloomPass.setSize = (w, h) => baseBloomSetSize(
+      Math.max(1, Math.round(w * bloomScale)),
+      Math.max(1, Math.round(h * bloomScale))
+    );
+    this.bloomPass.enabled = tierCfg.bloom;
     this.composer.addPass(this.bloomPass);
 
     this.cinematicPass = new ShaderPass(OrganumCinematicShader);
@@ -713,7 +743,7 @@ export class OrganumEngine {
     this.cinematicPass.uniforms.uWorldPhase = this.anomaly.uniforms.uWorldPhase;
     this.cinematicPass.uniforms.uGlitchIntensity = this.anomaly.uniforms.uGlitchIntensity;
     this.cinematicPass.uniforms.uVolumetricPulse = this.anomaly.uniforms.uVolumetricPulse;
-    this.cinematicPass.enabled = QUALITY_TIERS[this.qualityTier].cinematicPass;
+    this.cinematicPass.enabled = tierCfg.cinematicPass;
     this.composer.addPass(this.cinematicPass);
 
     this.outputPass = new OutputPass();
@@ -957,13 +987,21 @@ export class OrganumEngine {
     this.qualityTier = cfg.id;
 
     const dpr = Math.min(window.devicePixelRatio || 1, cfg.dprCap);
+    const w = this.container?.clientWidth || window.innerWidth || 1280;
+    const h = this.container?.clientHeight || window.innerHeight || 720;
     this.renderer.setPixelRatio(dpr);
+    this.renderer.setSize(w, h);
+    this.composer?.setSize(w, h);
     if (this.pneumaPoints) {
       this.pneumaPoints.geometry.setDrawRange(0, cfg.particles);
       this.pneumaMaterial.uniforms.uPixelRatio.value = dpr;
     }
     if (this.bloomPass) this.bloomPass.enabled = cfg.bloom;
     if (this.cinematicPass) this.cinematicPass.enabled = cfg.cinematicPass;
+    if (this.composer) {
+      if (this.composer.renderTarget1) this.composer.renderTarget1.samples = cfg.msaa;
+      if (this.composer.renderTarget2) this.composer.renderTarget2.samples = cfg.msaa;
+    }
     return this.qualityTier;
   }
 
@@ -1105,7 +1143,9 @@ export class OrganumEngine {
       this.cinematicPass.uniforms.uLightScreenPos.value.y = Math.max(0.05, Math.min(0.95, (lightPos.y + 1) * 0.5));
     }
 
-    if (this.composer && (this.bloomPass.enabled || this.cinematicPass.enabled)) {
+    if (this.composer) {
+      // Always route through the composer: the tier MSAA render target now provides
+      // scene antialiasing (canvas MSAA is disabled) and OutputPass tone-maps once.
       this.composer.render(dt);
     } else {
       this.renderer.render(this.scene, this.camera);
@@ -1118,6 +1158,22 @@ export class OrganumEngine {
       this._currentFps = Math.round(this._frameCount / this._fpsAccumSec);
       this._frameCount = 0;
       this._fpsAccumSec = 0;
+
+      // Automatic quality adaptation (downgrade-only to avoid oscillation):
+      // if we sustain under 45 fps for two consecutive one-second windows, step
+      // down high -> medium -> low. Users can still override via f.setQuality().
+      if (this.qualityTier !== 'reduced') {
+        this._slowWindows = this._currentFps < 45 ? this._slowWindows + 1 : 0;
+        if (this._slowWindows >= 2) {
+          this._slowWindows = 0;
+          if (this.qualityTier === 'high') {
+            this.setQuality('medium');
+          } else if (this.qualityTier === 'medium') {
+            this.setQuality('low');
+          }
+        }
+      }
+
       this.onCameraTelemetry({
         fps: this._currentFps,
         mode: this.viewMode,
