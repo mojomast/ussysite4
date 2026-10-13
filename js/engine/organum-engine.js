@@ -145,6 +145,17 @@ export class OrganumEngine {
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     this.qualityTier = this.prefersReducedMotion ? 'reduced' : 'medium';
+
+    // Particle toggle for performance A/B testing: append ?particles=off to the URL,
+    // or call __USSY_APP__.engine.setParticlesEnabled(false) from the console.
+    this.particlesEnabled = true;
+    if (typeof window !== 'undefined' && window.location) {
+      const particleParam = new URLSearchParams(window.location.search).get('particles');
+      if (particleParam && ['off', '0', 'false', 'no', 'none'].includes(particleParam.toLowerCase())) {
+        this.particlesEnabled = false;
+      }
+    }
+
     this.viewMode = 'overview'; // 'overview' | 'rail' | 'lineage'
     this.activeFilter = 'all';
 
@@ -700,6 +711,8 @@ export class OrganumEngine {
     this.pneumaPoints.frustumCulled = false;
     this.pneumaPoints.name = 'pneuma-curl-particles';
     this.scene.add(this.pneumaPoints);
+
+    this.setParticlesEnabled(this.particlesEnabled);
   }
 
   _buildPostProcessing(width, height) {
@@ -981,6 +994,18 @@ export class OrganumEngine {
     this.targetSplineT = Math.max(0, Math.min(1, this.targetSplineT + deltaT));
   }
 
+  setParticlesEnabled(enabled) {
+    this.particlesEnabled = !!enabled;
+    if (this.pneumaPoints) {
+      this.pneumaPoints.visible = this.particlesEnabled;
+      this.pneumaPoints.geometry.setDrawRange(
+        0,
+        this.particlesEnabled ? QUALITY_TIERS[this.qualityTier].particles : 0
+      );
+    }
+    return this.particlesEnabled;
+  }
+
   setQuality(tierName) {
     const cfg = QUALITY_TIERS[tierName];
     if (!cfg) return this.qualityTier;
@@ -993,7 +1018,7 @@ export class OrganumEngine {
     this.renderer.setSize(w, h);
     this.composer?.setSize(w, h);
     if (this.pneumaPoints) {
-      this.pneumaPoints.geometry.setDrawRange(0, cfg.particles);
+      this.pneumaPoints.geometry.setDrawRange(0, this.particlesEnabled ? cfg.particles : 0);
       this.pneumaMaterial.uniforms.uPixelRatio.value = dpr;
     }
     if (this.bloomPass) this.bloomPass.enabled = cfg.bloom;
@@ -1115,7 +1140,7 @@ export class OrganumEngine {
       this.ferrofluidMaterial.uniforms.uCursorForce.value = this.cursorForce;
       this.ferrofluidMaterial.uniforms.uCameraPos.value.copy(this.camera.position);
     }
-    if (this.pneumaMaterial) {
+    if (this.pneumaMaterial && this.particlesEnabled) {
       this.pneumaMaterial.uniforms.uCursorWorld.value.copy(this.cursorWorld);
       this.pneumaMaterial.uniforms.uCursorForce.value = this.cursorForce;
     }

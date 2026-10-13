@@ -63,6 +63,8 @@ export class OrganumApp {
       },
       getQuality: () => this.engine?.qualityTier || 'high',
       setQuality: (tier) => this.engine?.setQuality(tier),
+      getParticles: () => this.engine?.particlesEnabled ?? true,
+      setParticles: (on) => this.engine?.setParticlesEnabled(on),
       commandHooks: {
         onGo: (id) => this.inspectProject(id),
         onMode: (m) => this.setViewMode(m),
