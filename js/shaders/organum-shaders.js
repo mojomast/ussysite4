@@ -559,17 +559,17 @@ export const OrganumCinematicShader = {
       vec3 color = vec3(r, g, b);
 
       // 2. Crepuscular God-Ray Radial Sampling from Vault Key Light NDC
-      vec2 deltaTextCoord = (uv - uLightScreenPos) * (1.0 / 16.0) * 0.52;
+      vec2 deltaTextCoord = (uv - uLightScreenPos) * (1.0 / 8.0) * 0.52;
       vec2 sampleUv = uv;
       float illuminationDecay = 1.0;
       vec3 godRayAccum = vec3(0.0);
 
-      for (int i = 0; i < 16; i++) {
+      for (int i = 0; i < 8; i++) {
         sampleUv -= deltaTextCoord;
         vec3 s = texture2D(tDiffuse, clamp(sampleUv, 0.01, 0.99)).rgb;
         float luma = dot(s, vec3(0.299, 0.587, 0.114));
         vec3 highlight = s * smoothstep(0.42, 0.95, luma);
-        godRayAccum += highlight * illuminationDecay * 0.045;
+        godRayAccum += highlight * illuminationDecay * 0.085;
         illuminationDecay *= 0.92;
       }
 

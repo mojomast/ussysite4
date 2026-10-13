@@ -84,29 +84,18 @@ function createSharedMaterials(project, qualityTier = 'high') {
     roughness: 0.34
   });
 
-  const glass = useTransmission
-    ? new THREE.MeshPhysicalMaterial({
-        color: accent.clone().lerp(new THREE.Color('#ffffff'), 0.45),
-        metalness: 0.05,
-        roughness: 0.08,
-        transmission: 0.88,
-        thickness: 1.2,
-        ior: 1.48,
-        dispersion: 0.28,
-        iridescence: 0.65,
-        iridescenceIOR: 1.35,
-        attenuationColor: accent,
-        attenuationDistance: 3.5,
-        transparent: true,
-        opacity: 0.95
-      })
-    : new THREE.MeshStandardMaterial({
-        color: accent,
-        metalness: 0.35,
-        roughness: 0.18,
-        transparent: true,
-        opacity: 0.72
-      });
+  // Cheap "glass": no physical transmission (which would force an extra
+  // full-scene render pass). Env reflections + rim emissive read as glass.
+  const glass = new THREE.MeshStandardMaterial({
+    color: accent.clone().lerp(new THREE.Color('#ffffff'), 0.5),
+    metalness: 0.16,
+    roughness: 0.07,
+    envMapIntensity: 1.6,
+    emissive: accent,
+    emissiveIntensity: 0.22,
+    transparent: true,
+    opacity: 0.55
+  });
 
   const emissivePrimary = new THREE.MeshStandardMaterial({
     color: accent,

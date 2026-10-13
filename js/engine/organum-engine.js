@@ -45,17 +45,17 @@ import {
 export const QUALITY_TIERS = {
   high: {
     id: 'high',
-    dprCap: 1.5,
+    dprCap: 1.25,
     particles: 60000,
     bloom: true,
     cinematicPass: true,
-    msaa: 4,
+    msaa: 2,
     bloomScale: 0.5
   },
   medium: {
     id: 'medium',
-    dprCap: 1.25,
-    particles: 32000,
+    dprCap: 1.0,
+    particles: 20000,
     bloom: true,
     cinematicPass: true,
     msaa: 2,
@@ -63,17 +63,17 @@ export const QUALITY_TIERS = {
   },
   low: {
     id: 'low',
-    dprCap: 1.0,
-    particles: 14000,
+    dprCap: 0.9,
+    particles: 9000,
     bloom: false,
     cinematicPass: false,
-    msaa: 2,
+    msaa: 0,
     bloomScale: 0.5
   },
   reduced: {
     id: 'reduced',
-    dprCap: 1.0,
-    particles: 6000,
+    dprCap: 0.8,
+    particles: 3000,
     bloom: false,
     cinematicPass: false,
     msaa: 0,
@@ -211,6 +211,7 @@ export class OrganumEngine {
 
     this.pointer = new THREE.Vector2(99, 99);
     this.cursorWorld = new THREE.Vector3(0, -10, 0);
+    this._hitPoint = new THREE.Vector3();
     this.cursorForce = 0;
     this.isDragging = false;
     this.dragMoved = false;
@@ -415,17 +416,18 @@ export class OrganumEngine {
     });
     this.anomaly.attachMaterial(this.iridescenceMaterial);
 
-    // Breathing Transmissive Glass Lung Core
-    const lungGlassMat = new THREE.MeshPhysicalMaterial({
+    // Breathing Glass Lung Core — cheap "fake glass": MeshStandardMaterial with
+    // strong env reflections + a rim emissive instead of physical transmission.
+    // This removes the extra full-scene transmission render pass entirely.
+    const lungGlassMat = new THREE.MeshStandardMaterial({
       color: '#5eead4',
-      transmission: 0.9,
-      thickness: 1.8,
-      ior: 1.46,
-      dispersion: 0.32,
+      metalness: 0.12,
       roughness: 0.06,
-      metalness: 0.05,
-      iridescence: 0.8,
-      transparent: true
+      envMapIntensity: 1.7,
+      emissive: '#2dd4bf',
+      emissiveIntensity: 0.3,
+      transparent: true,
+      opacity: 0.5
     });
     this.windchestLung = new THREE.Mesh(new THREE.OctahedronGeometry(2.8, 2), lungGlassMat);
     this.windchestGroup.add(this.windchestLung);
@@ -531,7 +533,7 @@ export class OrganumEngine {
     for (let r = 0; r < 3; r++) {
       const offsetPts = splinePoints.map((pt) => pt.clone().add(railOffsets[r]));
       const curve = new THREE.CatmullRomCurve3(offsetPts, false, 'catmullrom', 0.5);
-      const tubeGeo = new THREE.TubeGeometry(curve, 160, r === 0 ? 0.22 : 0.11, 12, false);
+      const tubeGeo = new THREE.TubeGeometry(curve, 120, r === 0 ? 0.22 : 0.11, 8, false);
       const tubeMesh = new THREE.Mesh(tubeGeo, this.iridescenceMaterial);
       this.railsGroup.add(tubeMesh);
     }
@@ -564,7 +566,7 @@ export class OrganumEngine {
     });
     this.anomaly.attachMaterial(this.ferrofluidMaterial);
 
-    const floorGeo = new THREE.PlaneGeometry(116, 116, 128, 128);
+    const floorGeo = new THREE.PlaneGeometry(116, 116, 64, 64);
     floorGeo.rotateX(-Math.PI / 2);
     this.ferrofluidFloor = new THREE.Mesh(floorGeo, this.ferrofluidMaterial);
     this.ferrofluidFloor.position.y = -10.2;
@@ -866,7 +868,7 @@ export class OrganumEngine {
     this.raycaster.setFromCamera(this.pointer, this.camera);
 
     // Intersect floor mathematical plane for ferrofluid & pneuma cursor force
-    const hitPoint = new THREE.Vector3();
+    const hitPoint = this._hitPoint;
     if (this.raycaster.ray.intersectPlane(this.floorPlaneMath, hitPoint)) {
       this.cursorWorld.copy(hitPoint);
       if (!this.isDragging) {
